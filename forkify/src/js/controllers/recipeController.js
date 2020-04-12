@@ -6,14 +6,12 @@ export default class RecipeController {
     constructor() {
         recipeView.setHandlerForModifyButtons(this.servingHandler.bind(this));
         resultView.setHandlersForResultElements(this.getRecipeDetails.bind(this))
-        //just to have them in one place
-        this.id
+        //just to have them in one place (current recipe, current ingredients)
         this.res
         this.ingredients
     }
 
     async getRecipeDetails(id) {
-        this.id = id;
         let jsonResult = await this.getSpecificRecipeDetails(id);
         this.res = $.extend(new recipeModel.Recipe(), jsonResult.recipe) 
         this.drawRecipe(this.res)
@@ -28,7 +26,6 @@ export default class RecipeController {
 
     drawRecipe(recipe) {
         recipeView.updateRecipe(recipe);
-        // recipeView.changeLikesHeart(likesController.checkIfElementIsLiked(recipe))
     }
 
     drawIngredients() {
@@ -53,6 +50,3 @@ export default class RecipeController {
         }
     }
 }
-
-
-

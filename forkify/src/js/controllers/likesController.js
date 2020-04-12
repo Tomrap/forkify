@@ -10,13 +10,13 @@ export default class LikesController {
         //it is complicated because there need to be 2 handlers: one to draw recipe object, another one to check if the heart should be filled in (liked) or not
         likesView.setHandlerForLikesList(recipeController.getRecipeDetails.bind(recipeController),recipeView.changeLikesHeart.bind(null, 0));
         recipeView.setHandlerForRecipeLove(this.servingHandler.bind(this))
-        resultView.subsequentSetHandlerForResultElements(recipeView.changeLikesHeart,this.checkIfElementIsLiked.bind(this));
+        resultView.subsequentSetHandlerForResultElements(recipeView.changeLikesHeart, this.checkIfElementIsLiked.bind(this));
         this.readFromLocalStorage()
         this.reDrawLikedElements();
     }
 
     servingHandler() {
-        let index = this.checkIfElementIsLiked()
+        let index = this.checkIfElementIsLiked(this.recipeController.res.recipe_id)
         if(index == -1) {
             this.recipeListObject.push(this.recipeController.res);
             this.reDrawLikedElements()
@@ -36,9 +36,9 @@ export default class LikesController {
         }
     }
     
-    checkIfElementIsLiked() {
+    checkIfElementIsLiked(recipe_id) {
         for (let index = 0; index < this.recipeListObject.length; index++) {
-            if(this.recipeListObject[index].recipe_id == this.recipeController.id) {
+            if(this.recipeListObject[index].recipe_id == recipe_id) {
                 return index;
             } 
         }

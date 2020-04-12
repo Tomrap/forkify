@@ -11,7 +11,6 @@
         });
     }
     
-    //this handler is set (set, not defined) first so it is fired first as well however it calls async method so before async method is run, second handler is run
     export function setHandlersForResultElements(resultElementHandler) {
         document.querySelector('.results__list').addEventListener('click', (event) => {
             var itemID = event.toElement.parentNode.parentNode.hash;
@@ -21,9 +20,12 @@
         })
     }
 
-    export function subsequentSetHandlerForResultElements(resultElementHandler, functionCalcuatingArgument) {
+    export function subsequentSetHandlerForResultElements(resultElementHandler, checkerFunction) {
         document.querySelector('.results__list').addEventListener('click', () => {
-            resultElementHandler(functionCalcuatingArgument());
+            var itemID = event.toElement.parentNode.parentNode.hash;
+            if (itemID) {
+                resultElementHandler(checkerFunction(itemID.substring(1)))
+            }
         })
     }
     
