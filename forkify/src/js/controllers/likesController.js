@@ -1,62 +1,65 @@
 import * as likesView from './../views/likesView.js'
 import * as recipeView from './../views/recipeView.js'
-import * as recipeController from './recipeController.js'
+import * as resultView from './../views/resultView.js'
 
-export {init, checkIfElementIsLiked}
-
-var recipeListObject = [];
-
-
-function init() {
-    readFromLocalStorage()
-    reDrawLikedElements();
-    likesView.initializeLikesView(servingHandler, recipeController.getRecipeDetails);
-}
-
-function servingHandler() {
-    let index = checkIfElementIsLiked(recipeController.res)
-    if(index == -1) {
-        recipeListObject.push(recipeController.res);
-        reDrawLikedElements()
-        recipeView.changeLikesHeart(0)
-    } else {
-        recipeListObject.splice(index, 1);
-        reDrawLikedElements()
-        recipeView.changeLikesHeart(-1)
+export default class LikesController {
+    constructor(recipeController) {
+        this.recipeListObject = [];
+        this.recipeController = recipeController;
+        //this piece of code is a bit complicated, could be fix a bit by removing "like heart" fill in logic (if else) from view to here
+        //it is complicated because there need to be 2 handlers: one to draw recipe object, another one to check if the heart should be filled in (liked) or not
+        likesView.setHandlerForLikesList(recipeController.getRecipeDetails.bind(recipeController),recipeView.changeLikesHeart.bind(null, 0));
+        recipeView.setHandlerForRecipeLove(this.servingHandler.bind(this))
+        resultView.subsequentSetHandlerForResultElements(recipeView.changeLikesHeart,this.checkIfElementIsLiked.bind(this));
+        this.readFromLocalStorage()
+        this.reDrawLikedElements();
     }
-    saveToLocalStorage();
-}
 
-function reDrawLikedElements() {
-    likesView.deleteAllLikedElements()
-    for (let index = 0; index < recipeListObject.length; index++) {
-        likesView.addLikedElement(recipeListObject[index])
+    servingHandler() {
+        let index = this.checkIfElementIsLiked()
+        if(index == -1) {
+            this.recipeListObject.push(this.recipeController.res);
+            this.reDrawLikedElements()
+            recipeView.changeLikesHeart(0)
+        } else {
+            this.recipeListObject.splice(index, 1);  
+            this.reDrawLikedElements()
+            recipeView.changeLikesHeart(-1)
+        }
+        this.saveToLocalStorage();
     }
-}
-
-function checkIfElementIsLiked(res) {
-
-    for (let index = 0; index < recipeListObject.length; index++) {
-        if(recipeListObject[index].recipe_id == res.recipe_id) {
-            return index;
-        } 
+    
+    reDrawLikedElements() {
+        likesView.deleteAllLikedElements()
+        for (let index = 0; index < this.recipeListObject.length; index++) {
+            likesView.addLikedElement(this.recipeListObject[index])
+        }
     }
-    return -1;
-}
-
-function saveToLocalStorage() {
-    let likesList  = [];
-    recipeListObject.forEach(element => {     
-        likesList.push(JSON.stringify(element))
-    });
-    window.localStorage.setItem('likes', JSON.stringify(likesList));
-}
-
-function readFromLocalStorage() {
-    let likesList = JSON.parse(window.localStorage.getItem('likes'))
-    if(likesList != null) {
-        likesList.forEach(element => {     
-            recipeListObject.push(JSON.parse(element))
+    
+    checkIfElementIsLiked() {
+        for (let index = 0; index < this.recipeListObject.length; index++) {
+            if(this.recipeListObject[index].recipe_id == this.recipeController.id) {
+                return index;
+            } 
+        }
+        return -1;
+    }
+    
+    saveToLocalStorage() {
+        let likesList  = [];
+        this.recipeListObject.forEach(element => {     
+            likesList.push(JSON.stringify(element))
         });
+        window.localStorage.setItem('likes', JSON.stringify(likesList));
+    }
+    
+    readFromLocalStorage() {
+        let likesList = JSON.parse(window.localStorage.getItem('likes'))
+        if(likesList != null) {
+            likesList.forEach(element => {     
+                this.recipeListObject.push(JSON.parse(element))
+            });
+        }
     }
 }
+

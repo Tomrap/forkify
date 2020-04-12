@@ -1,7 +1,4 @@
-export {addShoppingItem, initializeShoppingView,clearShoppingList}
-
-function initializeShoppingView(handler) {
-    document.querySelector('.recipe__ingredients').children[1].addEventListener('click', handler);
+export function setHandlerForShoppingListItems() {
     document.querySelector('.shopping__list').addEventListener('click', (event) => {
         var item = event.toElement.parentNode.parentNode;
         if (item) {
@@ -10,7 +7,7 @@ function initializeShoppingView(handler) {
     })
 }
 
-function addShoppingItem(element) {
+export function addShoppingItem(element) {
     let html = `<li class="shopping__item">
                     <div class="shopping__count">
                         <input type="number" value="${element.count}" step="100">
@@ -26,6 +23,6 @@ function addShoppingItem(element) {
     document.querySelector('.shopping__list').insertAdjacentHTML('beforeend', html);          
 }
 
-function clearShoppingList() {
+export function clearShoppingList() {
     $('.shopping__list').empty();
 }

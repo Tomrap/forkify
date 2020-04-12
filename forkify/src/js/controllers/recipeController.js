@@ -1,52 +1,58 @@
 import * as recipeModel from './../models/recipeModel.js'
 import * as recipeView from './../views/recipeView.js'
-import * as likesController from './likesController.js'
+import * as resultView from './../views/resultView.js'
 
-export {init, ingredients, res, getRecipeDetails}
+export default class RecipeController {
+    constructor() {
+        recipeView.setHandlerForModifyButtons(this.servingHandler.bind(this));
+        resultView.setHandlersForResultElements(this.getRecipeDetails.bind(this))
+        //just to have them in one place
+        this.id
+        this.res
+        this.ingredients
+    }
 
-var ingredients;
-var res;
+    async getRecipeDetails(id) {
+        this.id = id;
+        let jsonResult = await this.getSpecificRecipeDetails(id);
+        this.res = $.extend(new recipeModel.Recipe(), jsonResult.recipe) 
+        this.drawRecipe(this.res)
+        this.ingredients = this.splitIngredients(this.res)
+        this.drawIngredients();
+    }
 
-function init() {
-    recipeView.initializeRecipeView(getRecipeDetails, servingHandler);
-}
+    async getSpecificRecipeDetails(query) {
+        const response = await fetch(`https://forkify-api.herokuapp.com/api/get?rId=${query}`);
+        return await response.json();
+    }
 
-async function getRecipeDetails(id) {
-    let jsonResult = await getSpecificRecipeDetails(id);
-    res = $.extend(new recipeModel.Recipe(), jsonResult.recipe) 
-    drawRecipe(res)
-    ingredients = splitIngredients(res)
-    drawIngredients(ingredients);
-}
+    drawRecipe(recipe) {
+        recipeView.updateRecipe(recipe);
+        // recipeView.changeLikesHeart(likesController.checkIfElementIsLiked(recipe))
+    }
 
-async function getSpecificRecipeDetails(query) {
-    const response = await fetch(`https://forkify-api.herokuapp.com/api/get?rId=${query}`);
-    return await response.json();
-}
-
-function drawRecipe(recipe) {
-    recipeView.updateRecipeTop(recipe);
-    recipeView.changeLikesHeart(likesController.checkIfElementIsLiked(recipe))
-}
-
-function drawIngredients(ingredients) {
-    ingredients.forEach(element => {
-        recipeView.addRecipeIngredient(element);
-    });
-}
-
-function splitIngredients(recipe) {
-    return recipe.ingredients.map((element) => {
-        return recipeModel.splitIngredient(element);
-    })
-}
-
-function servingHandler(modifier) {
-    if(!(ingredients[0].servingCounter == 1 && modifier == -1)) {
-        ingredients.forEach(element => {
-            element.servingCounter+=modifier
+    drawIngredients() {
+        this.ingredients.forEach(element => {
+            recipeView.addRecipeIngredient(element);
         });
-        recipeView.updateAllRecipeIngredients(ingredients);
-        recipeView.updateServings(ingredients[0].servingCounter)
+    }
+
+    splitIngredients(recipe) {
+        return recipe.ingredients.map((element) => {
+            return recipe.splitIngredient(element);
+        })
+    }
+
+    servingHandler(modifier) {
+        if(!(this.ingredients[0].servingCounter == 1 && modifier == -1)) {
+            this.ingredients.forEach(element => {
+                element.servingCounter+=modifier
+            });
+            recipeView.updateAllRecipeIngredients(this.ingredients);
+            recipeView.updateServings(this.ingredients[0].servingCounter)
+        }
     }
 }
+
+
+

@@ -1,17 +1,22 @@
 import * as shoppingView from './../views/shoppingView.js'
-import * as recipeController from './recipeController.js'
+import * as recipeView from './../views/recipeView.js'
 
-export {init}
+export default class ShoppingController{
+    constructor(recipeController) {
+        this.recipeController = recipeController;
+        shoppingView.clearShoppingList()
+        shoppingView.setHandlerForShoppingListItems();
+        recipeView.setHandlerForAddToShoppingList(this.servingHandler.bind(this));  
+    }
 
-
-function init() {
-    shoppingView.clearShoppingList()
-    shoppingView.initializeShoppingView(servingHandler);
+    servingHandler() {
+        shoppingView.clearShoppingList()
+        this.recipeController.ingredients.forEach(element => {
+                shoppingView.addShoppingItem(element);
+            });
+    }
 }
 
-function servingHandler() {
-    shoppingView.clearShoppingList()
-    recipeController.ingredients.forEach(element => {
-            shoppingView.addShoppingItem(element);
-        });
-}
+
+
+    

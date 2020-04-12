@@ -1,18 +1,18 @@
-export {initializeRecipeView, addRecipeIngredient, updateRecipe as updateRecipeTop, updateAllRecipeIngredients, updateServings, changeLikesHeart}
-
-function initializeRecipeView(resultListhandler, servingHandler) {    
+export function setHandlerForModifyButtons(servingHandler) {    
     document.querySelector('.recipe_container').style.display = "none";
-    document.querySelector('.results__list').addEventListener('click', (event) => {
-        var itemID = event.toElement.parentNode.parentNode.hash;
-        if (itemID) {
-            resultListhandler(itemID.substring(1))
-        }
-    })
     document.querySelector('.recipe__info-buttons').children[0].addEventListener('click', servingHandler.bind(null,-1))
     document.querySelector('.recipe__info-buttons').children[1].addEventListener('click', servingHandler.bind(null,1))
 }
 
-function updateRecipe(element) {
+export function setHandlerForAddToShoppingList(handler) {
+     document.querySelector('.recipe__ingredients').children[1].addEventListener('click', handler);
+}
+
+export function setHandlerForRecipeLove(recipeLoveHandler) {
+    document.querySelector('.recipe__love').addEventListener('click', recipeLoveHandler);
+}
+
+export function updateRecipe(element) {
     document.querySelector('.recipe_container').style.display = "block";
     document.querySelector('.recipe__img').src = element.image_url;
     document.querySelector('.recipe__title').children[0].innerText = element.title;
@@ -23,11 +23,11 @@ function updateRecipe(element) {
     $('.recipe__ingredient-list').empty();
 }
 
-function updateServings(servings) {
+export function updateServings(servings) {
     document.querySelector('.recipe__info-data--people').innerText = servings;
 }
 
-function addRecipeIngredient(element) {
+export function addRecipeIngredient(element) {
     let html = `
     <li class="recipe__item">
         <svg class="recipe__icon">
@@ -42,7 +42,7 @@ function addRecipeIngredient(element) {
     document.querySelector('.recipe__ingredient-list').insertAdjacentHTML('beforeend', html);
 }
 
-function updateAllRecipeIngredients(ingredients) {
+export function updateAllRecipeIngredients(ingredients) {
     let fields = document.querySelectorAll('.recipe__count');
     let fieldsArr = Array.prototype.slice.call(fields);
     fieldsArr.forEach((element, index) => {
@@ -50,7 +50,7 @@ function updateAllRecipeIngredients(ingredients) {
     });
 }
 
-function changeLikesHeart(isLiked) {
+export function changeLikesHeart(isLiked) {
     if(isLiked>=0) {
         document.querySelector('.header__likes').children[0].href.baseVal="img/icons.svg#icon-heart"
     } else {

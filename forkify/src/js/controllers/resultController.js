@@ -1,59 +1,61 @@
-import * as resultModel from './../models/resultModel.js'
+import * as recipeModel from './../models/recipeModel.js'
 import * as resultView from './../views/resultView.js'
 
-export {init}
-
-function init() {
-    resultView.initializeResultView(searchForTheRecipe);
-}
-
-async function searchForTheRecipe(query) {
-    let resultListObject = new resultModel.RecipeListObject();
-    resultListObject.resultList.length = 0;
-    await populateResultList(query,resultListObject)
-    drawResults(resultListObject.getAllResults(),0);
-}
-
-async function populateResultList(query, resultListObject) {
-    let jsonResult = await getAll(query);
-    jsonResult.recipes.forEach(element => {
-        let res = $.extend(new resultModel.Result(), element) 
-        resultListObject.addResult(res)
-    });
-}
-
-async function getAll(query) {
-        const response = await fetch(`https://forkify-api.herokuapp.com/api/search?q=${query}`);
-        return await response.json();
-}
-
-function drawResults(resultList, pageNumber) {
-    resultView.clearResults()
-    let elementsPerPage = 10;
-    let firstIndex = pageNumber*elementsPerPage;
-    let length = resultList.length
-    if(length > firstIndex) {
-        let lastIndex = length<(firstIndex + elementsPerPage) ? length : firstIndex + elementsPerPage;
-        updateResultListUI(resultList, firstIndex, lastIndex);
-        drawButtons(resultList, pageNumber, elementsPerPage)
-    }    
-}
-
-function updateResultListUI(resultList, startIndex, endIndex) {
-    for (let index = startIndex; index < endIndex; index++) {
-        resultView.addElementToResultListUI(resultList[index]);
+export default class ResultController {
+    constructor() {
+        resultView.setHandlersForButtons(this.searchForTheRecipe.bind(this));
     }
-}
 
-function drawButtons(resultList, pageNumber, elementsPerPage) {
-    if(pageNumber > 0) {
-        resultView.showPrevButton(pageNumber, () => {
-            drawResults(resultList,pageNumber-1);    
+    async searchForTheRecipe(query) {
+        let resultList = []
+        resultList.length = 0;
+        await this.populateResultList(query,resultList)
+        this.drawResults(resultList,0);
+    }
+    
+    async populateResultList(query, resultList) {
+        let jsonResult = await this.getAll(query);
+        jsonResult.recipes.forEach(element => {
+            let res = $.extend(new recipeModel.Recipe(), element) 
+            resultList.push(res)
         });
     }
-    if(resultList.length>(pageNumber*elementsPerPage + elementsPerPage)) {
-        resultView.showNextButton(pageNumber+2, () => {
-            drawResults(resultList,pageNumber+1);   
-        });
+    
+    async getAll(query) {
+            const response = await fetch(`https://forkify-api.herokuapp.com/api/search?q=${query}`);
+            return await response.json();
+    }
+    
+    drawResults(resultList, pageNumber) {
+        resultView.clearResults()
+        let elementsPerPage = 10;
+        let firstIndex = pageNumber*elementsPerPage;
+        let length = resultList.length
+        if(length > firstIndex) {
+            let lastIndex = length<(firstIndex + elementsPerPage) ? length : firstIndex + elementsPerPage;
+            this.updateResultListUI(resultList, firstIndex, lastIndex);
+            this.drawButtons(resultList, pageNumber, elementsPerPage)
+        }    
+    }
+    
+    updateResultListUI(resultList, startIndex, endIndex) {
+        for (let index = startIndex; index < endIndex; index++) {
+            resultView.addElementToResultListUI(resultList[index]);
+        }
+    }
+    
+    drawButtons(resultList, pageNumber, elementsPerPage) {
+        if(pageNumber > 0) {
+            resultView.showPrevButton(pageNumber, () => {
+                this.drawResults(resultList,pageNumber-1);    
+            });
+        }
+        if(resultList.length>(pageNumber*elementsPerPage + elementsPerPage)) {
+            resultView.showNextButton(pageNumber+2, () => {
+                this.drawResults(resultList,pageNumber+1);   
+            });
+        }
     }
 }
+
+
