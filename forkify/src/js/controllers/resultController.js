@@ -7,6 +7,9 @@ export default class ResultController {
     }
 
     async searchForTheRecipe(query) {
+        // console.log("here")
+        // const sleep = m => new Promise(r => setTimeout(r, m))
+        // await sleep(3000)
         let resultList = []
         resultList.length = 0;
         await this.populateResultList(query,resultList)

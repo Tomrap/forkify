@@ -3,10 +3,12 @@
         hideButtons();
         document.querySelector('.btn').addEventListener('click', () => {
             searchHandler(getSearchQuery());
+            setLoader()
         })
         document.querySelector('.search__field').addEventListener("keypress", () => {
             if (event.keyCode === 13) {
                 searchHandler(getSearchQuery());
+                setLoader()
             }
         });
     }
@@ -61,6 +63,14 @@
         let children = document.querySelector(id).childNodes;
         children[3].textContent = `page ${number}`;
         document.querySelector(id).addEventListener('click', handler);
+    }
+
+    function setLoader() {
+        $('.results__list').empty()
+        document.querySelector('.results__list').insertAdjacentHTML('beforeend', `<div class="loader">
+        <svg>
+                <use href="img/icons.svg#icon-cw"></use>
+        </svg></div>`);
     }
 
 
