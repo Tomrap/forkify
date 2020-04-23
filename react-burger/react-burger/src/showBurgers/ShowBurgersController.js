@@ -8,27 +8,31 @@ class ShowBurgersController extends Component {
 
     state = {
         loading: true,
-        burgerList: {}
+        burgerMap: new Map()
     }
 
     componentDidMount() {
         let value = this.context;
-        value.getAllBurgers().then((res) => {
-            let curBurgerList = [];
-            res.forEach(element => {
-                curBurgerList.push(element.burger.ingredients)
-            });
-            this.setState({
-                loading: false,
-                burgerList: curBurgerList
-            })
+        value.listenToDatabaseChanges((res) => {
+            this.setState((prevState => {
+                //perform deep copy !!
+                res.docChanges().forEach((change) => {
+                    if (change.type === "removed") {
+                        prevState.burgerMap.delete(change.doc.id);
+                    } else {
+                        prevState.burgerMap.set(change.doc.id, change.doc.data().burger);
+                    }
+                });
+                return {
+                    loading: false,
+                    burgerMap: prevState.burgerMap
+                }
+            }))
         })
     }
 
     render() {
-
-        let burgers = this.state.loading ?  <Loader /> : <Burgers burgerList = {this.state.burgerList}></Burgers>
-
+        let burgers = this.state.loading ?  <Loader /> : <Burgers burgerList = {Array.from(this.state.burgerMap.values())}></Burgers>
         return (
              burgers
         )
