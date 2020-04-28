@@ -17,10 +17,11 @@ const config = {
       this.db = app.firestore();
     }
 
-    saveToDatabase = (burger) => {
+    saveToDatabase = (burger, successHandler, errorHandler) => {
         this.db.collection("burgers").add({
             burger
-        })
+        }).then(successHandler)
+        .catch(errorHandler);
     }
 
     getAllBurgers = async () => {

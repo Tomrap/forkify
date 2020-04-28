@@ -11,7 +11,7 @@ function App() {
     <BrowserRouter>
         <div className="App">
           <Header></Header>
-          <Route path="/home" exact component={BurgerController} />
+          <Route path="/" exact component={BurgerController} />
           <Route path="/showBurgers" exact component={ShowBurgersController} />
         </div>
     </BrowserRouter>
